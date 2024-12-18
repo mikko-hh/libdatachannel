@@ -35,6 +35,7 @@ public:
 	using clock = std::chrono::steady_clock;
 
 	static ThreadPool &Instance();
+	static void Destroy();
 
 	ThreadPool(const ThreadPool &) = delete;
 	ThreadPool &operator=(const ThreadPool &) = delete;
@@ -47,6 +48,7 @@ public:
 	void clear();
 	void run();
 	bool runOne();
+	~ThreadPool();
 
 	template <class F, class... Args>
 	auto enqueue(F &&f, Args &&...args) noexcept -> invoke_future_t<F, Args...>;
@@ -61,7 +63,6 @@ public:
 
 private:
 	ThreadPool();
-	~ThreadPool();
 
 	std::function<void()> dequeue(); // returns null function if joining
 

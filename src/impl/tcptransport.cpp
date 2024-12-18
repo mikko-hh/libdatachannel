@@ -232,10 +232,10 @@ void TcpTransport::attempt() {
 	auto callback = [this](PollService::Event event) {
 		try {
 			if (event == PollService::Event::Error)
-				throw std::runtime_error("TCP connection failed");
+				throw std::exception("TCP connection failed");
 
 			if (event == PollService::Event::Timeout)
-				throw std::runtime_error("TCP connection timed out");
+				throw std::exception("TCP connection timed out");
 
 			if (event != PollService::Event::Out)
 				return;
@@ -244,12 +244,12 @@ void TcpTransport::attempt() {
 			socklen_t errlen = sizeof(err);
 			if (::getsockopt(mSock, SOL_SOCKET, SO_ERROR, reinterpret_cast<char *>(&err),
 			                 &errlen) != 0)
-				throw std::runtime_error("Failed to get socket error code");
+				throw std::exception("Failed to get socket error code");
 
 			if (err != 0) {
 				std::ostringstream msg;
 				msg << "TCP connection failed, errno=" << err;
-				throw std::runtime_error(msg.str());
+				throw std::exception(msg.str().c_str());
 			}
 
 			// Success

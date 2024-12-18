@@ -30,6 +30,7 @@ enum class LogLevel { // Don't change, it must match plog severity
 typedef std::function<void(LogLevel level, string message)> LogCallback;
 
 RTC_CPP_EXPORT void InitLogger(LogLevel level, LogCallback callback = nullptr);
+RTC_CPP_EXPORT void UninitLogger();
 
 RTC_CPP_EXPORT void Preload();
 RTC_CPP_EXPORT std::shared_future<void> Cleanup();

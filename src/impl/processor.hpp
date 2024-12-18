@@ -49,6 +49,7 @@ private:
 class TearDownProcessor final : public Processor {
 public:
 	static TearDownProcessor &Instance();
+	static void Destroy();
 
 private:
 	TearDownProcessor();

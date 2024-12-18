@@ -34,6 +34,9 @@ TearDownProcessor &TearDownProcessor::Instance() {
 	static TearDownProcessor *instance = new TearDownProcessor;
 	return *instance;
 }
+void TearDownProcessor::Destroy() {
+	delete& Instance();
+}
 
 TearDownProcessor::TearDownProcessor() {}
 

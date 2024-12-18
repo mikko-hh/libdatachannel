@@ -30,6 +30,7 @@ public:
 	using clock = std::chrono::steady_clock;
 
 	static PollService &Instance();
+	static void Destroy();
 
 	PollService(const PollService &) = delete;
 	PollService &operator=(const PollService &) = delete;

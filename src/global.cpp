@@ -20,60 +20,67 @@
 
 #include <mutex>
 
+namespace rtc {
+	struct LogAppender : public plog::IAppender {
+		synchronized_callback<LogLevel, string> callback;
+
+		void write(const plog::Record& record) override {
+			const auto severity = record.getSeverity();
+			auto formatted = plog::FuncMessageFormatter::format(record);
+			formatted.pop_back(); // remove newline
+
+			const auto& converted =
+				plog::UTF8Converter::convert(formatted); // does nothing on non-Windows systems
+
+			if (!callback(static_cast<LogLevel>(severity), converted))
+				std::cout << plog::severityToString(severity) << " " << converted << std::endl;
+		}
+	};
+}
+
 namespace {
+using Logger = plog::Logger<PLOG_DEFAULT_INSTANCE_ID>;
+Logger* g_logger = nullptr;
+rtc::LogAppender* g_appender = nullptr;
 
 void plogInit(plog::Severity severity, plog::IAppender *appender) {
-	using Logger = plog::Logger<PLOG_DEFAULT_INSTANCE_ID>;
-	static Logger *logger = nullptr;
-	if (!logger) {
+	if (!g_logger) {
 		PLOG_DEBUG << "Initializing logger";
-		logger = new Logger(severity);
+		g_logger = new Logger(severity);
 		if (appender) {
-			logger->addAppender(appender);
+			g_logger->addAppender(appender);
 		} else {
 			using ConsoleAppender = plog::ColorConsoleAppender<plog::TxtFormatter>;
 			static ConsoleAppender *consoleAppender = new ConsoleAppender();
-			logger->addAppender(consoleAppender);
+			g_logger->addAppender(consoleAppender);
 		}
 	} else {
-		logger->setMaxSeverity(severity);
+		g_logger->setMaxSeverity(severity);
 		if (appender)
-			logger->addAppender(appender);
+			g_logger->addAppender(appender);
 	}
 }
-
+void plogUninit() {
+	delete g_logger;
+	g_logger = nullptr;
+	delete g_appender;
+	g_appender = nullptr;
+}
 } // namespace
 
 namespace rtc {
 
-struct LogAppender : public plog::IAppender {
-	synchronized_callback<LogLevel, string> callback;
-
-	void write(const plog::Record &record) override {
-		const auto severity = record.getSeverity();
-		auto formatted = plog::FuncMessageFormatter::format(record);
-		formatted.pop_back(); // remove newline
-
-		const auto &converted =
-		    plog::UTF8Converter::convert(formatted); // does nothing on non-Windows systems
-
-		if (!callback(static_cast<LogLevel>(severity), converted))
-			std::cout << plog::severityToString(severity) << " " << converted << std::endl;
-	}
-};
-
 void InitLogger(LogLevel level, LogCallback callback) {
 	const auto severity = static_cast<plog::Severity>(level);
-	static LogAppender *appender = nullptr;
 	static std::mutex mutex;
 	std::lock_guard lock(mutex);
-	if (appender) {
-		appender->callback = std::move(callback);
+	if (g_appender) {
+		g_appender->callback = std::move(callback);
 		plogInit(severity, nullptr); // change the severity
 	} else if (callback) {
-		appender = new LogAppender();
-		appender->callback = std::move(callback);
-		plogInit(severity, appender);
+		g_appender = new LogAppender();
+		g_appender->callback = std::move(callback);
+		plogInit(severity, g_appender);
 	} else {
 		plogInit(severity, nullptr); // log to cout
 	}
@@ -81,6 +88,9 @@ void InitLogger(LogLevel level, LogCallback callback) {
 
 void InitLogger(plog::Severity severity, plog::IAppender *appender) {
 	plogInit(severity, appender);
+}
+void UninitLogger() {
+	plogUninit();
 }
 
 void Preload() { impl::Init::Instance().preload(); }

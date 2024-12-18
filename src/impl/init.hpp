@@ -23,6 +23,7 @@ using init_token = shared_ptr<void>;
 class Init {
 public:
 	static Init &Instance();
+	static void Destroy();
 
 	Init(const Init &) = delete;
 	Init &operator=(const Init &) = delete;

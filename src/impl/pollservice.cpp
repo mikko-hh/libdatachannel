@@ -25,6 +25,9 @@ PollService &PollService::Instance() {
 	static PollService *instance = new PollService;
 	return *instance;
 }
+void PollService::Destroy() {
+	delete& Instance();
+}
 
 PollService::PollService() : mStopped(true) {}
 

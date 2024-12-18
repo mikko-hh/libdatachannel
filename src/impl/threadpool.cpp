@@ -16,6 +16,10 @@ ThreadPool &ThreadPool::Instance() {
 	return *instance;
 }
 
+void ThreadPool::Destroy() {
+	delete &Instance();
+}
+
 ThreadPool::ThreadPool() {}
 
 ThreadPool::~ThreadPool() {}

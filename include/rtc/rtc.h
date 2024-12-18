@@ -176,6 +176,7 @@ typedef void(RTC_API *rtcRembHandlerCallbackFunc)(int tr, unsigned int bitrate, 
 
 // NULL cb on the first call will log to stdout
 RTC_C_EXPORT void rtcInitLogger(rtcLogLevel level, rtcLogCallbackFunc cb);
+RTC_C_EXPORT void rtcUninitLogger();
 
 // User pointer
 RTC_C_EXPORT void rtcSetUserPointer(int id, void *ptr);

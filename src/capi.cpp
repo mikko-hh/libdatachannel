@@ -10,6 +10,9 @@
 #include "rtc.hpp"
 
 #include "impl/internals.hpp"
+#include "impl/threadpool.hpp"
+#include "impl/pollservice.hpp"
+#include "impl/processor.hpp"
 
 #include <algorithm>
 #include <chrono>
@@ -379,6 +382,9 @@ void rtcInitLogger(rtcLogLevel level, rtcLogCallbackFunc cb) {
 		};
 
 	InitLogger(static_cast<LogLevel>(level), callback);
+}
+void rtcUninitLogger() {
+	UninitLogger();
 }
 
 void rtcSetUserPointer(int i, void *ptr) { setUserPointer(i, ptr); }
@@ -1635,12 +1641,16 @@ void rtcCleanup() {
 		}
 
 		if (rtc::Cleanup().wait_for(10s) == std::future_status::timeout)
-			throw std::runtime_error(
+			throw std::exception(
 			    "Cleanup timeout (possible deadlock or undestructible object)");
 
 	} catch (const std::exception &e) {
 		PLOG_ERROR << e.what();
 	}
+	rtc::impl::ThreadPool::Destroy();
+	rtc::impl::Init::Destroy();
+	rtc::impl::PollService::Destroy();
+	rtc::impl::TearDownProcessor::Destroy();
 }
 
 int rtcSetSctpSettings(const rtcSctpSettings *settings) {

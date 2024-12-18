@@ -64,6 +64,10 @@ Init &Init::Instance() {
 	return *instance;
 }
 
+void Init::Destroy() {
+	delete& Instance();
+}
+
 Init::Init() {
 	std::promise<void> p;
 	p.set_value();
