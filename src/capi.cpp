@@ -1651,6 +1651,7 @@ void rtcCleanup() {
 	rtc::impl::Init::Destroy();
 	rtc::impl::PollService::Destroy();
 	rtc::impl::TearDownProcessor::Destroy();
+	rtcUninitLogger();
 }
 
 int rtcSetSctpSettings(const rtcSctpSettings *settings) {
