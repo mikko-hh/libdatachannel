@@ -292,7 +292,7 @@ void TcpTransport::createSocket(const struct sockaddr *addr, socklen_t addrlen) 
 		if (ret < 0 && sockerrno != SEINPROGRESS && sockerrno != SEWOULDBLOCK) {
 			std::ostringstream msg;
 			msg << "TCP connection to " << node << ":" << serv << " failed, errno=" << sockerrno;
-			throw std::runtime_error(msg.str());
+			throw std::exception(msg.str().c_str());
 		}
 
 	} catch (...) {
