@@ -75,7 +75,7 @@ void WsTransport::stop() { close(); }
 
 bool WsTransport::send(message_ptr message) {
 	if (state() != State::Connected)
-		throw std::exception("WebSocket is not open");
+		throw rtc::exception("WebSocket is not open");
 
 	if (!message)
 		return false;

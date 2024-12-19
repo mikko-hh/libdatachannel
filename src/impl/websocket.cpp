@@ -180,10 +180,10 @@ bool WebSocket::changeState(State newState) { return state.exchange(newState) !=
 
 bool WebSocket::outgoing(message_ptr message) {
 	if (state != State::Open || !mWsTransport)
-		throw std::exception("WebSocket is not open");
+		throw rtc::exception("WebSocket is not open");
 
 	if (message->size() > maxMessageSize())
-		throw std::exception("Message size exceeds limit");
+		throw rtc::exception("Message size exceeds limit");
 
 	return mWsTransport->send(message);
 }
@@ -461,7 +461,7 @@ shared_ptr<WsTransport> WebSocket::initWsTransport() {
 	} catch (const std::exception &e) {
 		PLOG_ERROR << e.what();
 		remoteClose();
-		throw std::exception("WebSocket transport initialization failed");
+		throw rtc::exception("WebSocket transport initialization failed");
 	}
 }
 

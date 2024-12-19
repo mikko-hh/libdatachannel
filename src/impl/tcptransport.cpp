@@ -198,7 +198,6 @@ void TcpTransport::resolve() {
 
 	ThreadPool::Instance().enqueue(weak_bind(&TcpTransport::attempt, this));
 }
-
 void TcpTransport::attempt() {
 	try {
 		std::lock_guard lock(mSendMutex);
@@ -232,10 +231,10 @@ void TcpTransport::attempt() {
 	auto callback = [this](PollService::Event event) {
 		try {
 			if (event == PollService::Event::Error)
-				throw std::exception("TCP connection failed");
+				throw rtc::exception("TCP connection failed");
 
 			if (event == PollService::Event::Timeout)
-				throw std::exception("TCP connection timed out");
+				throw rtc::exception("TCP connection timed out");
 
 			if (event != PollService::Event::Out)
 				return;
@@ -244,12 +243,12 @@ void TcpTransport::attempt() {
 			socklen_t errlen = sizeof(err);
 			if (::getsockopt(mSock, SOL_SOCKET, SO_ERROR, reinterpret_cast<char *>(&err),
 			                 &errlen) != 0)
-				throw std::exception("Failed to get socket error code");
+				throw rtc::exception("Failed to get socket error code");
 
 			if (err != 0) {
 				std::ostringstream msg;
 				msg << "TCP connection failed, errno=" << err;
-				throw std::exception(msg.str().c_str());
+				throw rtc::exception(msg.str().c_str());
 			}
 
 			// Success
@@ -292,7 +291,7 @@ void TcpTransport::createSocket(const struct sockaddr *addr, socklen_t addrlen) 
 		if (ret < 0 && sockerrno != SEINPROGRESS && sockerrno != SEWOULDBLOCK) {
 			std::ostringstream msg;
 			msg << "TCP connection to " << node << ":" << serv << " failed, errno=" << sockerrno;
-			throw std::exception(msg.str().c_str());
+			throw rtc::exception(msg.str().c_str());
 		}
 
 	} catch (...) {

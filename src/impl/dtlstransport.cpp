@@ -1007,7 +1007,7 @@ void DtlsTransport::handleTimeout() {
 	// Warning: This function breaks the usual return value convention
 	int ret = DTLSv1_handle_timeout(mSsl);
 	if (ret < 0) {
-		throw std::exception("Handshake timeout"); // write BIO can't fail
+		throw rtc::exception("Handshake timeout"); // write BIO can't fail
 	} else if (ret > 0) {
 		LOG_VERBOSE << "DTLS retransmit done";
 	}
@@ -1020,7 +1020,7 @@ void DtlsTransport::handleTimeout() {
 		// recommended 1s so this allows for 5 retransmissions and fails after
 		// roughly 30s.
 		if (timeout > 30s)
-			throw std::exception("Handshake timeout");
+			throw rtc::exception("Handshake timeout");
 
 		LOG_VERBOSE << "DTLS retransmit timeout is " << timeout.count() << "ms";
 		ThreadPool::Instance().schedule(timeout, [weak_this = weak_from_this()]() {
