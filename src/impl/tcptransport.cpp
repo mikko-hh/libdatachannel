@@ -221,7 +221,7 @@ void TcpTransport::attempt() {
 
 		createSocket(reinterpret_cast<const struct sockaddr *>(&addr), addrlen);
 
-	} catch (const std::runtime_error &e) {
+	} catch (const std::exception &e) {
 		PLOG_DEBUG << e.what();
 		ThreadPool::Instance().enqueue(weak_bind(&TcpTransport::attempt, this));
 		return;
