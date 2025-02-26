@@ -186,16 +186,16 @@ bool DataChannel::outgoing(message_ptr message) {
 		transport = mSctpTransport.lock();
 
 		if (mIsClosed)
-			throw std::runtime_error("DataChannel is closed");
+			throw rtc::exception("DataChannel is closed");
 
 		if (!transport)
-			throw std::runtime_error("DataChannel not open");
+			return false;// throw rtc::exception("DataChannel not open");
 
 		if (!mStream.has_value())
-			throw std::logic_error("DataChannel has no stream assigned");
+			throw rtc::exception("DataChannel has no stream assigned");
 
 		if (message->size() > maxMessageSize())
-			throw std::invalid_argument("Message size exceeds limit");
+			throw rtc::exception("Message size exceeds limit");
 
 		// Before the ACK has been received on a DataChannel, all messages must be sent ordered
 		message->reliability = mIsOpen ? mReliability : nullptr;
